@@ -1,7 +1,28 @@
-.terraform
-terraform.tfstate
-*.tfstate*
-terraform.tfvars
-*.backup
-.idea
-.external_momdules
+# Terraform state
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+
+# Sensitive variable files
+
+example.auto.tfvars
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Lambda build artifacts
+.build/
+
+# Logs
+*.log
+
+# Terratest
+vendor/

@@ -1,0 +1,10 @@
+aws_region     = "us-east-1"
+stream_name    = "opensearch-delivery-stream"
+s3_bucket_name = "my-firehose-opensearch-bucket-unique-123"
+function_name  = "firehose-opensearch-transformer"
+# Update this after running: terraform apply in examples/opensearch-infra
+# opensearch_domain_arn = "arn:aws:es:us-east-1:884360309640:domain/firehose-os"
+# opensearch_endpoint   = "search-firehose-os-7ppiuvuucgfkgobybadbvfwomq.us-east-1.es.amazonaws.com"
+os_namespace          = "arc"
+os_environment        = "dev"
+opensearch_index_name = "firehose-index"
