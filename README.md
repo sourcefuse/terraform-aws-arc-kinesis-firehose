@@ -1,6 +1,6 @@
 # terraform-aws-arc-kinesis-firehose
 
-A production-ready, reusable Terraform module for provisioning Amazon Kinesis Data Firehose delivery streams.
+ARC Reusable Terraform module for provisioning Amazon Kinesis Data Firehose delivery streams.
 
 ## Overview
 
