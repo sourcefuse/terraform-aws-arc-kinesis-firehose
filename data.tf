@@ -67,8 +67,11 @@ data "aws_iam_policy_document" "firehose_policy" {
   dynamic "statement" {
     for_each = var.enable_logging ? [1] : []
     content {
-      effect  = "Allow"
-      actions = ["logs:PutLogEvents"]
+      effect = "Allow"
+      actions = [
+        "logs:PutLogEvents",
+        "logs:CreateLogStream",
+      ]
       resources = [
         "arn:${data.aws_partition.current.partition}:logs:${data.aws_region.current.region}:${data.aws_caller_identity.current.account_id}:log-group:${local.log_group_name}:log-stream:*"
       ]
@@ -89,8 +92,15 @@ data "aws_iam_policy_document" "firehose_policy" {
   dynamic "statement" {
     for_each = var.destination == "opensearch" ? [1] : []
     content {
-      effect  = "Allow"
-      actions = ["es:DescribeDomain", "es:DescribeDomains", "es:DescribeDomainConfig", "es:ESHttpPost", "es:ESHttpPut"]
+      effect = "Allow"
+      actions = [
+        "es:DescribeDomain",
+        "es:DescribeDomains",
+        "es:DescribeDomainConfig",
+        "es:ESHttpPost",
+        "es:ESHttpPut",
+        "es:ESHttpGet",
+      ]
       resources = compact([
         var.opensearch_domain_arn,
         var.opensearch_domain_arn != null ? "${var.opensearch_domain_arn}/*" : null,
