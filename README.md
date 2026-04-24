@@ -8,10 +8,6 @@
 
 ---
 
-# terraform-aws-arc-kinesis-firehose
-
-ARC Reusable Terraform module for provisioning Amazon Kinesis Data Firehose delivery streams.
-
 ## Overview
 
 This module provisions and manages Kinesis Data Firehose delivery streams with full support for multiple destinations, IAM roles, CloudWatch logging, Lambda transformation, KMS encryption, and dynamic partitioning.
