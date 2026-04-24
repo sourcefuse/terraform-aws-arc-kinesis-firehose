@@ -47,10 +47,10 @@ module "firehose" {
 
   redshift_configuration = {
     cluster_jdbcurl = var.redshift_jdbc_url
+    username        = var.redshift_username
+    password        = data.aws_ssm_parameter.redshift_password.value
     data_table_name = var.redshift_table
-    username        = "admin"
-    password        = "4P0?OTZfEysu0+fx"
-    copy_options    = "json 'auto ignorecase'"
+    copy_options    = "json 'auto ignorecase' gzip"
   }
 
   enable_logging = true

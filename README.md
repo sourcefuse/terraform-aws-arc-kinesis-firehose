@@ -174,7 +174,7 @@ Apache 2.0 — see [LICENSE](./LICENSE).
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0, < 7.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.42.0 |
 
 ## Modules
 
@@ -220,7 +220,7 @@ No modules.
 | <a name="input_log_stream_name"></a> [log\_stream\_name](#input\_log\_stream\_name) | CloudWatch log stream name. | `string` | `null` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the Kinesis Firehose delivery stream. | `string` | n/a | yes |
 | <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Optional prefix prepended to the stream name. | `string` | `null` | no |
-| <a name="input_opensearch_configuration"></a> [opensearch\_configuration](#input\_opensearch\_configuration) | Configuration block for OpenSearch destination. | <pre>object({<br/>    index_name             = string<br/>    index_rotation_period  = optional(string, "OneDay")<br/>    buffering_interval     = optional(number, 300)<br/>    buffering_size         = optional(number, 5)<br/>    retry_duration         = optional(number, 300)<br/>    s3_backup_mode         = optional(string, "FailedDocumentsOnly")<br/>    type_name              = optional(string)<br/>    cluster_endpoint       = optional(string)<br/>  })</pre> | `null` | no |
+| <a name="input_opensearch_configuration"></a> [opensearch\_configuration](#input\_opensearch\_configuration) | Configuration block for OpenSearch destination. | <pre>object({<br/>    index_name            = string<br/>    index_rotation_period = optional(string, "OneDay")<br/>    buffering_interval    = optional(number, 300)<br/>    buffering_size        = optional(number, 5)<br/>    retry_duration        = optional(number, 300)<br/>    s3_backup_mode        = optional(string, "FailedDocumentsOnly")<br/>    type_name             = optional(string)<br/>    cluster_endpoint      = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_opensearch_domain_arn"></a> [opensearch\_domain\_arn](#input\_opensearch\_domain\_arn) | ARN of the OpenSearch domain. | `string` | `null` | no |
 | <a name="input_output_format"></a> [output\_format](#input\_output\_format) | Output format for format conversion. Valid values: PARQUET, ORC. | `string` | `"PARQUET"` | no |
 | <a name="input_redshift_configuration"></a> [redshift\_configuration](#input\_redshift\_configuration) | Configuration block for Redshift destination. | <pre>object({<br/>    cluster_jdbcurl    = string<br/>    username           = optional(string)<br/>    password           = optional(string)<br/>    data_table_name    = string<br/>    copy_options       = optional(string)<br/>    data_table_columns = optional(string)<br/>    retry_duration     = optional(number, 3600)<br/>    s3_backup_mode     = optional(string, "Disabled")<br/>  })</pre> | `null` | no |

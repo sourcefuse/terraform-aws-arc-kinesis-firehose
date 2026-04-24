@@ -14,13 +14,6 @@ locals {
     ManagedBy = "terraform"
   })
 
-  # Shared CloudWatch logging options
-  cloudwatch_logging = {
-    enabled         = var.enable_logging
-    log_group_name  = local.log_group_name
-    log_stream_name = local.log_stream_name
-  }
-
   # Shared processing configuration
   enable_processing = var.lambda_arn != null || length(var.additional_processors) > 0
 

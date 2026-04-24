@@ -19,7 +19,7 @@ variable "s3_bucket_name" {
 variable "redshift_jdbc_url" {
   description = "The JDBC connection URL for the Amazon Redshift cluster (e.g., jdbc:redshift://host:port/database)."
   type        = string
-  default     = "jdbc:redshift://analytics-workgroup.884360309640.us-east-1.redshift-serverless.amazonaws.com:5439/analytics"
+  default     = "jdbc:redshift://arc-poc-analytics.x4xxxxxx2kux.us-east-1.redshift.amazonaws.com:5439/analytics"
 }
 
 variable "redshift_username" {

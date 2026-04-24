@@ -17,7 +17,9 @@ Delivers data to Amazon Redshift using an S3 staging bucket and the COPY command
 
 ## Providers
 
-No providers.
+| Name | Version |
+|------|---------|
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 6.42.0 |
 
 ## Modules
 
@@ -29,18 +31,18 @@ No providers.
 
 ## Resources
 
-No resources.
+| Name | Type |
+|------|------|
+| [aws_ssm_parameter.redshift_password](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | The AWS region where all resources (Firehose, S3 staging bucket, and Redshift) are deployed. | `string` | `"us-east-1"` | no |
-| <a name="input_redshift_columns"></a> [redshift\_columns](#input\_redshift\_columns) | Optional comma-separated list of columns in the Redshift table for data mapping. If null, all columns will be used in default order. | `string` | `null` | no |
-| <a name="input_redshift_jdbc_url"></a> [redshift\_jdbc\_url](#input\_redshift\_jdbc\_url) | The JDBC connection URL for the Amazon Redshift cluster (e.g., jdbc:redshift://host:port/database). | `string` | n/a | yes |
-| <a name="input_redshift_password"></a> [redshift\_password](#input\_redshift\_password) | The password used for authenticating to the Redshift cluster. Marked as sensitive to prevent exposure in logs. | `string` | n/a | yes |
-| <a name="input_redshift_table"></a> [redshift\_table](#input\_redshift\_table) | The target table in Amazon Redshift where Firehose will load the incoming data. | `string` | `"events"` | no |
-| <a name="input_redshift_username"></a> [redshift\_username](#input\_redshift\_username) | The username used by Firehose to authenticate and load data into the Redshift cluster. | `string` | n/a | yes |
+| <a name="input_redshift_jdbc_url"></a> [redshift\_jdbc\_url](#input\_redshift\_jdbc\_url) | The JDBC connection URL for the Amazon Redshift cluster (e.g., jdbc:redshift://host:port/database). | `string` | `"jdbc:redshift://arc-poc-analytics.x4xxxxxx2kux.us-east-1.redshift.amazonaws.com:5439/analytics"` | no |
+| <a name="input_redshift_table"></a> [redshift\_table](#input\_redshift\_table) | The target table in Amazon Redshift where Firehose will load the incoming data. | `string` | `"firehose_test_table"` | no |
+| <a name="input_redshift_username"></a> [redshift\_username](#input\_redshift\_username) | The username used by Firehose to authenticate and load data into the Redshift cluster. | `string` | `"admin"` | no |
 | <a name="input_s3_bucket_name"></a> [s3\_bucket\_name](#input\_s3\_bucket\_name) | The name of the Amazon S3 bucket used as a staging area for Firehose before data is copied into Redshift. | `string` | `"my-firehose-redshift-staging"` | no |
 | <a name="input_stream_name"></a> [stream\_name](#input\_stream\_name) | The name of the Kinesis Data Firehose delivery stream configured to load data into Amazon Redshift. | `string` | `"redshift-stream"` | no |
 

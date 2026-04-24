@@ -113,6 +113,22 @@ data "aws_iam_policy_document" "firehose_policy" {
     }
   }
 
+  # Redshift permissions
+  dynamic "statement" {
+    for_each = var.destination == "redshift" ? [1] : []
+    content {
+      effect = "Allow"
+      actions = [
+        "redshift:GetClusterCredentials",
+        "redshift-serverless:GetCredentials",
+        "redshift-data:ExecuteStatement",
+        "redshift-data:DescribeStatement",
+        "redshift-data:GetStatementResult",
+      ]
+      resources = ["*"]
+    }
+  }
+
   # Kinesis source stream permissions
   dynamic "statement" {
     for_each = var.kinesis_source_stream_arn != null ? [1] : []
