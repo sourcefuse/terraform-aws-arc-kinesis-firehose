@@ -90,11 +90,12 @@ module "firehose" {
   name        = var.stream_name
   destination = "extended_s3"
 
-  s3_bucket_arn         = module.s3.bucket_arn
-  s3_compression_format = "GZIP"
+  s3_configuration = {
+    bucket_arn         = module.s3.bucket_arn
+    compression_format = "GZIP"
+  }
 
   lambda_arn = module.lambda.arn
 
-  enable_logging = true
-  tags           = module.tags.tags
+  tags = module.tags.tags
 }

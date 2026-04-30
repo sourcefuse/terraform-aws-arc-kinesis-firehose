@@ -51,16 +51,17 @@ module "firehose" {
   name        = var.stream_name
   destination = "extended_s3"
 
-  s3_bucket_arn         = module.s3.bucket_arn
-  s3_compression_format = "GZIP"
-  kms_key_arn           = aws_kms_key.firehose.arn
-  enable_sse            = true
+  s3_configuration = {
+    bucket_arn         = module.s3.bucket_arn
+    compression_format = "GZIP"
+  }
+
+  kms_key_arn = aws_kms_key.firehose.arn
 
   enable_format_conversion = var.enable_parquet
   glue_database_name       = var.enable_parquet ? var.glue_database_name : null
   glue_table_name          = var.enable_parquet ? var.glue_table_name : null
   output_format            = "PARQUET"
 
-  enable_logging = true
-  tags           = module.tags.tags
+  tags = module.tags.tags
 }

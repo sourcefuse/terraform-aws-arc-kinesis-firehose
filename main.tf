@@ -20,7 +20,7 @@ resource "aws_iam_role_policy" "firehose" {
 # ─── CloudWatch Log Group & Stream ───────────────────────────────────────────
 
 resource "aws_cloudwatch_log_group" "firehose" {
-  count = var.enable_logging ? 1 : 0
+  count = local.enable_logging ? 1 : 0
 
   name              = local.log_group_name
   retention_in_days = 14
@@ -29,7 +29,7 @@ resource "aws_cloudwatch_log_group" "firehose" {
 }
 
 resource "aws_cloudwatch_log_stream" "firehose" {
-  count = var.enable_logging ? 1 : 0
+  count = local.enable_logging ? 1 : 0
 
   name           = local.log_stream_name
   log_group_name = aws_cloudwatch_log_group.firehose[0].name
@@ -45,16 +45,16 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
 
   # ── Kinesis source ──
   dynamic "kinesis_source_configuration" {
-    for_each = var.kinesis_source_stream_arn != null ? [1] : []
+    for_each = var.kinesis_data_stream != null ? [1] : []
     content {
-      kinesis_stream_arn = var.kinesis_source_stream_arn
-      role_arn           = coalesce(var.kinesis_source_role_arn, local.iam_role_arn)
+      kinesis_stream_arn = var.kinesis_data_stream.stream_arn
+      role_arn           = coalesce(var.kinesis_data_stream.role_arn, local.iam_role_arn)
     }
   }
 
   # ── Server-side encryption ──
   dynamic "server_side_encryption" {
-    for_each = var.enable_sse && var.kinesis_source_stream_arn == null ? [1] : []
+    for_each = var.enable_sse && var.kinesis_data_stream == null ? [1] : []
     content {
       enabled  = true
       key_type = var.kms_key_arn != null ? "CUSTOMER_MANAGED_CMK" : "AWS_OWNED_CMK"
@@ -69,14 +69,14 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
     for_each = var.destination == "extended_s3" ? [1] : []
     content {
       role_arn            = local.iam_role_arn
-      bucket_arn          = var.s3_bucket_arn
-      prefix              = var.s3_prefix
-      error_output_prefix = var.s3_error_output_prefix
-      buffering_size      = var.enable_format_conversion ? max(var.s3_buffering_size, 64) : var.s3_buffering_size
-      buffering_interval  = var.s3_buffering_interval
-      compression_format  = var.enable_format_conversion ? "UNCOMPRESSED" : var.s3_compression_format
+      bucket_arn          = var.s3_configuration.bucket_arn
+      prefix              = var.s3_configuration.prefix
+      error_output_prefix = var.s3_configuration.error_output_prefix
+      buffering_size      = var.enable_format_conversion ? max(var.s3_configuration.buffering_size, 64) : var.s3_configuration.buffering_size
+      buffering_interval  = var.s3_configuration.buffering_interval
+      compression_format  = var.enable_format_conversion ? "UNCOMPRESSED" : var.s3_configuration.compression_format
       kms_key_arn         = var.kms_key_arn
-      s3_backup_mode      = var.s3_backup_mode
+      s3_backup_mode      = var.s3_backup_configuration.mode
 
       # Dynamic partitioning
       dynamic "dynamic_partitioning_configuration" {
@@ -143,20 +143,20 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
 
       # S3 backup
       dynamic "s3_backup_configuration" {
-        for_each = var.s3_backup_mode == "Enabled" && var.s3_backup_bucket_arn != null ? [1] : []
+        for_each = var.s3_backup_configuration.mode == "Enabled" && var.s3_backup_configuration.bucket_arn != null ? [1] : []
         content {
           role_arn           = local.iam_role_arn
-          bucket_arn         = var.s3_backup_bucket_arn
-          buffering_size     = var.s3_buffering_size
-          buffering_interval = var.s3_buffering_interval
-          compression_format = var.s3_compression_format
+          bucket_arn         = var.s3_backup_configuration.bucket_arn
+          buffering_size     = var.s3_configuration.buffering_size
+          buffering_interval = var.s3_configuration.buffering_interval
+          compression_format = var.s3_configuration.compression_format
           kms_key_arn        = var.kms_key_arn
         }
       }
 
       # CloudWatch logging
       dynamic "cloudwatch_logging_options" {
-        for_each = var.enable_logging ? [1] : []
+        for_each = local.enable_logging ? [1] : []
         content {
           enabled         = true
           log_group_name  = local.log_group_name
@@ -184,21 +184,21 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
 
       s3_configuration {
         role_arn           = local.iam_role_arn
-        bucket_arn         = var.s3_bucket_arn
-        buffering_size     = var.s3_buffering_size
-        buffering_interval = var.s3_buffering_interval
-        compression_format = var.s3_compression_format
+        bucket_arn         = var.s3_configuration.bucket_arn
+        buffering_size     = var.s3_configuration.buffering_size
+        buffering_interval = var.s3_configuration.buffering_interval
+        compression_format = var.s3_configuration.compression_format
         kms_key_arn        = var.kms_key_arn
       }
 
       dynamic "s3_backup_configuration" {
-        for_each = redshift_configuration.value.s3_backup_mode == "Enabled" && var.s3_backup_bucket_arn != null ? [1] : []
+        for_each = redshift_configuration.value.s3_backup_mode == "Enabled" && var.s3_backup_configuration.bucket_arn != null ? [1] : []
         content {
           role_arn           = local.iam_role_arn
-          bucket_arn         = var.s3_backup_bucket_arn
-          buffering_size     = var.s3_buffering_size
-          buffering_interval = var.s3_buffering_interval
-          compression_format = var.s3_compression_format
+          bucket_arn         = var.s3_backup_configuration.bucket_arn
+          buffering_size     = var.s3_configuration.buffering_size
+          buffering_interval = var.s3_configuration.buffering_interval
+          compression_format = var.s3_configuration.compression_format
         }
       }
 
@@ -223,7 +223,7 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
       }
 
       dynamic "cloudwatch_logging_options" {
-        for_each = var.enable_logging ? [1] : []
+        for_each = local.enable_logging ? [1] : []
         content {
           enabled         = true
           log_group_name  = local.log_group_name
@@ -252,10 +252,10 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
 
       s3_configuration {
         role_arn           = local.iam_role_arn
-        bucket_arn         = var.s3_bucket_arn
-        buffering_size     = var.s3_buffering_size
-        buffering_interval = var.s3_buffering_interval
-        compression_format = var.s3_compression_format
+        bucket_arn         = var.s3_configuration.bucket_arn
+        buffering_size     = var.s3_configuration.buffering_size
+        buffering_interval = var.s3_configuration.buffering_interval
+        compression_format = var.s3_configuration.compression_format
         kms_key_arn        = var.kms_key_arn
       }
 
@@ -289,7 +289,7 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
       }
 
       dynamic "cloudwatch_logging_options" {
-        for_each = var.enable_logging ? [1] : []
+        for_each = local.enable_logging ? [1] : []
         content {
           enabled         = true
           log_group_name  = local.log_group_name
@@ -316,10 +316,10 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
 
       s3_configuration {
         role_arn           = local.iam_role_arn
-        bucket_arn         = var.s3_bucket_arn
-        buffering_size     = var.s3_buffering_size
-        buffering_interval = var.s3_buffering_interval
-        compression_format = var.s3_compression_format
+        bucket_arn         = var.s3_configuration.bucket_arn
+        buffering_size     = var.s3_configuration.buffering_size
+        buffering_interval = var.s3_configuration.buffering_interval
+        compression_format = var.s3_configuration.compression_format
         kms_key_arn        = var.kms_key_arn
       }
 
@@ -356,7 +356,7 @@ resource "aws_kinesis_firehose_delivery_stream" "this" {
       }
 
       dynamic "cloudwatch_logging_options" {
-        for_each = var.enable_logging ? [1] : []
+        for_each = local.enable_logging ? [1] : []
         content {
           enabled         = true
           log_group_name  = local.log_group_name

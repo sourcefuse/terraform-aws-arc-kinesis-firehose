@@ -1,11 +1,11 @@
 locals {
-  name_prefix = var.name_prefix != null ? "${var.name_prefix}-" : ""
-  stream_name = "${local.name_prefix}${var.name}"
+  stream_name = var.name
 
   iam_role_arn = var.create_iam_role ? aws_iam_role.firehose[0].arn : var.iam_role_arn
 
-  log_group_name  = var.log_group_name != null ? var.log_group_name : "/aws/kinesisfirehose/${local.stream_name}"
-  log_stream_name = var.log_stream_name != null ? var.log_stream_name : "DestinationDelivery"
+  enable_logging  = var.logging_config.enable
+  log_group_name  = var.logging_config.log_group_name != null ? var.logging_config.log_group_name : "/aws/kinesisfirehose/${local.stream_name}"
+  log_stream_name = var.logging_config.log_stream_name != null ? var.logging_config.log_stream_name : "DestinationDelivery"
 
   needs_s3 = contains(["extended_s3", "redshift", "opensearch", "http_endpoint"], var.destination)
 

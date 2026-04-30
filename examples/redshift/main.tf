@@ -40,10 +40,12 @@ module "firehose" {
   name        = var.stream_name
   destination = "redshift"
 
-  s3_bucket_arn         = module.s3_staging.bucket_arn
-  s3_buffering_size     = 10
-  s3_buffering_interval = 400
-  s3_compression_format = "GZIP"
+  s3_configuration = {
+    bucket_arn         = module.s3_staging.bucket_arn
+    buffering_size     = 10
+    buffering_interval = 400
+    compression_format = "GZIP"
+  }
 
   redshift_configuration = {
     cluster_jdbcurl = var.redshift_jdbc_url
@@ -53,6 +55,5 @@ module "firehose" {
     copy_options    = "json 'auto ignorecase' gzip"
   }
 
-  enable_logging = true
-  tags           = module.tags.tags
+  tags = module.tags.tags
 }

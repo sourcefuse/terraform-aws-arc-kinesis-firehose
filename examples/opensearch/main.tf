@@ -89,8 +89,10 @@ module "firehose" {
   name        = var.stream_name
   destination = "opensearch"
 
-  s3_bucket_arn         = module.s3.bucket_arn
-  s3_compression_format = "GZIP"
+  s3_configuration = {
+    bucket_arn         = module.s3.bucket_arn
+    compression_format = "GZIP"
+  }
 
   opensearch_domain_arn = data.aws_opensearch_domain.firehose_os.arn
 
@@ -103,9 +105,8 @@ module "firehose" {
     s3_backup_mode        = "FailedDocumentsOnly"
   }
 
-  lambda_arn     = module.lambda.arn
-  enable_logging = true
-  tags           = module.tags.tags
+  lambda_arn = module.lambda.arn
+  tags       = module.tags.tags
 }
 
 # ── Map Firehose IAM role to OpenSearch firehose_writer role ───────────────────────

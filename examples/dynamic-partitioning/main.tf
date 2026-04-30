@@ -39,12 +39,13 @@ module "firehose" {
   name        = var.stream_name
   destination = "extended_s3"
 
-  s3_bucket_arn         = module.s3.bucket_arn
-  s3_buffering_size     = 64
-  s3_buffering_interval = 60
-
-  s3_prefix              = "data/sector=!{partitionKeyFromQuery:sector}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/"
-  s3_error_output_prefix = "errors/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/!{firehose:error-output-type}/"
+  s3_configuration = {
+    bucket_arn         = module.s3.bucket_arn
+    buffering_size     = 64
+    buffering_interval = 60
+    prefix             = "data/sector=!{partitionKeyFromQuery:sector}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/"
+    error_output_prefix = "errors/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/!{firehose:error-output-type}/"
+  }
 
   enable_dynamic_partitioning         = true
   dynamic_partitioning_retry_duration = 300
@@ -63,6 +64,5 @@ module "firehose" {
     }
   ]
 
-  enable_logging = true
-  tags           = module.tags.tags
+  tags = module.tags.tags
 }

@@ -35,10 +35,10 @@ data "aws_iam_policy_document" "firehose_policy" {
         "s3:PutObject",
       ]
       resources = compact([
-        var.s3_bucket_arn,
-        var.s3_bucket_arn != null ? "${var.s3_bucket_arn}/*" : null,
-        var.s3_backup_bucket_arn,
-        var.s3_backup_bucket_arn != null ? "${var.s3_backup_bucket_arn}/*" : null,
+        var.s3_configuration.bucket_arn,
+        var.s3_configuration.bucket_arn != null ? "${var.s3_configuration.bucket_arn}/*" : null,
+        var.s3_backup_configuration.bucket_arn,
+        var.s3_backup_configuration.bucket_arn != null ? "${var.s3_backup_configuration.bucket_arn}/*" : null,
       ])
     }
   }
@@ -65,7 +65,7 @@ data "aws_iam_policy_document" "firehose_policy" {
 
   # CloudWatch Logs permissions
   dynamic "statement" {
-    for_each = var.enable_logging ? [1] : []
+    for_each = var.logging_config.enable ? [1] : []
     content {
       effect = "Allow"
       actions = [
@@ -141,11 +141,11 @@ data "aws_iam_policy_document" "firehose_policy" {
 
   # Kinesis source stream permissions
   dynamic "statement" {
-    for_each = var.kinesis_source_stream_arn != null ? [1] : []
+    for_each = var.kinesis_data_stream != null ? [1] : []
     content {
       effect    = "Allow"
       actions   = ["kinesis:DescribeStream", "kinesis:GetShardIterator", "kinesis:GetRecords", "kinesis:ListShards"]
-      resources = [var.kinesis_source_stream_arn]
+      resources = [var.kinesis_data_stream.stream_arn]
     }
   }
 }

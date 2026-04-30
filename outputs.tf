@@ -20,10 +20,10 @@ output "iam_role_name" {
 
 output "log_group_name" {
   description = "CloudWatch log group name."
-  value       = var.enable_logging ? aws_cloudwatch_log_group.firehose[0].name : null
+  value       = local.enable_logging ? aws_cloudwatch_log_group.firehose[0].name : null
 }
 
 output "log_stream_name" {
   description = "CloudWatch log stream name."
-  value       = var.enable_logging ? aws_cloudwatch_log_stream.firehose[0].name : null
+  value       = local.enable_logging ? aws_cloudwatch_log_stream.firehose[0].name : null
 }

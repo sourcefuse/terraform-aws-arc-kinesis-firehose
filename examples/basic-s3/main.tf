@@ -39,11 +39,12 @@ module "firehose" {
   name        = var.stream_name
   destination = "extended_s3"
 
-  s3_bucket_arn         = module.s3.bucket_arn
-  s3_buffering_size     = 5
-  s3_buffering_interval = 300
-  s3_compression_format = "GZIP"
+  s3_configuration = {
+    bucket_arn         = module.s3.bucket_arn
+    buffering_size     = 5
+    buffering_interval = 300
+    compression_format = "GZIP"
+  }
 
-  enable_logging = true
-  tags           = module.tags.tags
+  tags = module.tags.tags
 }

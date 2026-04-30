@@ -10,12 +10,6 @@ variable "name" {
   }
 }
 
-variable "name_prefix" {
-  description = "Optional prefix prepended to the stream name."
-  type        = string
-  default     = null
-}
-
 variable "tags" {
   description = "Map of tags to assign to all resources."
   type        = map(string)
@@ -64,92 +58,58 @@ variable "kms_key_arn" {
 variable "enable_sse" {
   description = "Enable server-side encryption on the delivery stream."
   type        = bool
-  default     = false
+  default     = true
 }
 
 # ─── Logging ────────────────────────────────────────────────────────────────
 
-variable "enable_logging" {
-  description = "Enable CloudWatch logging for the delivery stream."
-  type        = bool
-  default     = true
-}
-
-variable "log_group_name" {
-  description = "CloudWatch log group name. Defaults to /aws/kinesisfirehose/<stream-name>."
-  type        = string
-  default     = null
-}
-
-variable "log_stream_name" {
-  description = "CloudWatch log stream name."
-  type        = string
-  default     = null
+variable "logging_config" {
+  description = "CloudWatch logging configuration for the delivery stream."
+  type = object({
+    enable          = optional(bool, true)
+    log_group_name  = optional(string, null)
+    log_stream_name = optional(string, null)
+  })
+  default = {}
 }
 
 # ─── S3 (extended_s3 destination & staging for other destinations) ───────────
 
-variable "s3_bucket_arn" {
-  description = "ARN of the S3 bucket for delivery or staging."
-  type        = string
-  default     = null
-}
-
-variable "s3_prefix" {
-  description = "S3 key prefix for delivered objects."
-  type        = string
-  default     = null
-}
-
-variable "s3_error_output_prefix" {
-  description = "S3 prefix for failed records."
-  type        = string
-  default     = null
-}
-
-variable "s3_buffering_size" {
-  description = "S3 buffer size in MB (1–128)."
-  type        = number
-  default     = 5
+variable "s3_configuration" {
+  description = "S3 delivery/staging configuration."
+  type = object({
+    bucket_arn         = optional(string, null)
+    prefix             = optional(string, null)
+    error_output_prefix = optional(string, null)
+    buffering_size     = optional(number, 5)
+    buffering_interval = optional(number, 300)
+    compression_format = optional(string, "UNCOMPRESSED")
+  })
+  default = {}
 
   validation {
-    condition     = var.s3_buffering_size >= 1 && var.s3_buffering_size <= 128
-    error_message = "s3_buffering_size must be between 1 and 128."
+    condition     = var.s3_configuration.buffering_size >= 1 && var.s3_configuration.buffering_size <= 128
+    error_message = "s3_configuration.buffering_size must be between 1 and 128."
+  }
+
+  validation {
+    condition     = var.s3_configuration.buffering_interval >= 0 && var.s3_configuration.buffering_interval <= 900
+    error_message = "s3_configuration.buffering_interval must be between 0 and 900."
+  }
+
+  validation {
+    condition     = contains(["UNCOMPRESSED", "GZIP", "ZIP", "Snappy", "HADOOP_SNAPPY"], var.s3_configuration.compression_format)
+    error_message = "s3_configuration.compression_format must be one of: UNCOMPRESSED, GZIP, ZIP, Snappy, HADOOP_SNAPPY."
   }
 }
 
-variable "s3_buffering_interval" {
-  description = "S3 buffer interval in seconds (0–900)."
-  type        = number
-  default     = 300
-
-  validation {
-    condition     = var.s3_buffering_interval >= 0 && var.s3_buffering_interval <= 900
-    error_message = "s3_buffering_interval must be between 0 and 900."
-  }
-}
-
-variable "s3_compression_format" {
-  description = "S3 compression format. Valid values: UNCOMPRESSED, GZIP, ZIP, Snappy, HADOOP_SNAPPY."
-  type        = string
-  default     = "UNCOMPRESSED"
-
-  validation {
-    condition     = contains(["UNCOMPRESSED", "GZIP", "ZIP", "Snappy", "HADOOP_SNAPPY"], var.s3_compression_format)
-    error_message = "Invalid s3_compression_format."
-  }
-}
-
-variable "s3_backup_mode" {
-  description = "S3 backup mode for extended_s3. Valid values: Disabled, Enabled."
-  type        = string
-  default     = "Disabled"
-}
-
-variable "s3_backup_bucket_arn" {
-  description = "ARN of the S3 backup bucket. Required when s3_backup_mode is Enabled."
-  type        = string
-  default     = null
+variable "s3_backup_configuration" {
+  description = "S3 backup configuration for extended_s3 destination."
+  type = object({
+    mode       = optional(string, "Disabled")
+    bucket_arn = optional(string, null)
+  })
+  default = {}
 }
 
 # ─── Lambda Transformation ───────────────────────────────────────────────────
@@ -225,16 +185,13 @@ variable "dynamic_partitioning_retry_duration" {
 
 # ─── Kinesis Source ──────────────────────────────────────────────────────────
 
-variable "kinesis_source_stream_arn" {
-  description = "ARN of a Kinesis Data Stream to use as the source."
-  type        = string
-  default     = null
-}
-
-variable "kinesis_source_role_arn" {
-  description = "IAM role ARN for reading from the source Kinesis stream."
-  type        = string
-  default     = null
+variable "kinesis_data_stream" {
+  description = "Kinesis Data Stream source configuration."
+  type = object({
+    stream_arn = string
+    role_arn   = optional(string, null)
+  })
+  default = null
 }
 
 # ─── Redshift ────────────────────────────────────────────────────────────────
