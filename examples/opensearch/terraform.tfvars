@@ -1,0 +1,7 @@
+aws_region            = "us-east-1"
+stream_name           = "opensearch-delivery-stream"
+s3_bucket_name        = "my-firehose-opensearch-bucket-unique-123"
+function_name         = "firehose-opensearch-transformer"
+os_namespace          = "arc"
+os_environment        = "dev"
+opensearch_index_name = "firehose-index"

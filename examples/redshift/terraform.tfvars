@@ -1,0 +1,5 @@
+aws_region        = "us-east-1"
+stream_name       = "redshift-delivery-stream"
+s3_bucket_name    = "my-firehose-redshift-staging-unique-123"
+redshift_jdbc_url = "jdbc:redshift://arc-poc-analytics.x4xxxxxx2kux.us-east-1.redshift.amazonaws.com:5439/analytics"
+redshift_table    = "firehose_test_table"
