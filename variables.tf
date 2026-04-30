@@ -78,12 +78,12 @@ variable "logging_config" {
 variable "s3_configuration" {
   description = "S3 delivery/staging configuration."
   type = object({
-    bucket_arn         = optional(string, null)
-    prefix             = optional(string, null)
+    bucket_arn          = optional(string, null)
+    prefix              = optional(string, null)
     error_output_prefix = optional(string, null)
-    buffering_size     = optional(number, 5)
-    buffering_interval = optional(number, 300)
-    compression_format = optional(string, "UNCOMPRESSED")
+    buffering_size      = optional(number, 5)
+    buffering_interval  = optional(number, 300)
+    compression_format  = optional(string, "UNCOMPRESSED")
   })
   default = {}
 

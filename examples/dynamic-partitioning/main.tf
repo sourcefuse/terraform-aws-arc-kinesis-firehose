@@ -40,10 +40,10 @@ module "firehose" {
   destination = "extended_s3"
 
   s3_configuration = {
-    bucket_arn         = module.s3.bucket_arn
-    buffering_size     = 64
-    buffering_interval = 60
-    prefix             = "data/sector=!{partitionKeyFromQuery:sector}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/"
+    bucket_arn          = module.s3.bucket_arn
+    buffering_size      = 64
+    buffering_interval  = 60
+    prefix              = "data/sector=!{partitionKeyFromQuery:sector}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/"
     error_output_prefix = "errors/year=!{timestamp:yyyy}/month=!{timestamp:MM}/day=!{timestamp:dd}/hour=!{timestamp:HH}/!{firehose:error-output-type}/"
   }
 
