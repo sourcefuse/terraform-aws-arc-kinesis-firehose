@@ -28,11 +28,14 @@ The module provisions and manages Kinesis Data Firehose delivery streams with su
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
   name        = "my-delivery-stream"
   destination = "extended_s3"
-  s3_bucket_arn = aws_s3_bucket.this.arn
+
+  s3_configuration = {
+    bucket_arn = aws_s3_bucket.this.arn
+  }
 
   tags = { Environment = "prod" }
 }
@@ -91,13 +94,16 @@ Delivers records to S3 with GZIP compression.
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name          = "my-s3-stream"
-  destination   = "extended_s3"
-  s3_bucket_arn = aws_s3_bucket.this.arn
+  name        = "my-s3-stream"
+  destination = "extended_s3"
 
-  s3_compression_format = "GZIP"
+  s3_configuration = {
+    bucket_arn         = aws_s3_bucket.this.arn
+    compression_format = "GZIP"
+  }
+
   tags = { Environment = "prod" }
 }
 ```
@@ -109,13 +115,16 @@ See [examples/basic-s3](../../examples/basic-s3).
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name          = "my-encrypted-stream"
-  destination   = "extended_s3"
-  s3_bucket_arn = aws_s3_bucket.this.arn
-  enable_sse    = true
-  kms_key_arn   = aws_kms_key.this.arn
+  name        = "my-encrypted-stream"
+  destination = "extended_s3"
+
+  s3_configuration = {
+    bucket_arn = aws_s3_bucket.this.arn
+  }
+
+  kms_key_arn = aws_kms_key.this.arn
 
   tags = { Environment = "prod" }
 }
@@ -130,12 +139,16 @@ Transforms records with a Lambda function before delivery.
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name          = "my-transform-stream"
-  destination   = "extended_s3"
-  s3_bucket_arn = aws_s3_bucket.this.arn
-  lambda_arn    = aws_lambda_function.transformer.arn
+  name        = "my-transform-stream"
+  destination = "extended_s3"
+
+  s3_configuration = {
+    bucket_arn = aws_s3_bucket.this.arn
+  }
+
+  lambda_arn = aws_lambda_function.transformer.arn
 
   tags = { Environment = "prod" }
 }
@@ -150,13 +163,16 @@ Delivers records to an Amazon OpenSearch Service domain.
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name                  = "my-opensearch-stream"
-  destination           = "opensearch"
-  s3_bucket_arn         = aws_s3_bucket.backup.arn
-  opensearch_domain_arn = aws_opensearch_domain.this.arn
+  name        = "my-opensearch-stream"
+  destination = "opensearch"
 
+  s3_configuration = {
+    bucket_arn = aws_s3_bucket.backup.arn
+  }
+
+  opensearch_domain_arn    = aws_opensearch_domain.this.arn
   opensearch_configuration = {
     index_name         = "my-index"
     buffering_interval = 60
@@ -164,11 +180,9 @@ module "firehose" {
     s3_backup_mode     = "FailedDocumentsOnly"
   }
 
-  lambda_arn     = aws_lambda_function.transformer.arn
-  enable_logging = true
-  tags = { Environment = "prod" }
+  lambda_arn = aws_lambda_function.transformer.arn
+  tags       = { Environment = "prod" }
 }
-
 ```
 
 See [examples/opensearch](../../examples/opensearch).
@@ -180,11 +194,14 @@ Stages records in S3 then COPYs them into Redshift.
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name          = "my-redshift-stream"
-  destination   = "redshift"
-  s3_bucket_arn = aws_s3_bucket.staging.arn
+  name        = "my-redshift-stream"
+  destination = "redshift"
+
+  s3_configuration = {
+    bucket_arn = aws_s3_bucket.staging.arn
+  }
 
   redshift_configuration = {
     cluster_jdbcurl = "jdbc:redshift://my-cluster.abc.us-east-1.redshift.amazonaws.com:5439/mydb"
@@ -206,14 +223,17 @@ Partitions S3 objects by extracting fields from the record payload using JQ.
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name          = "partitioned-stream"
-  destination   = "extended_s3"
-  s3_bucket_arn = aws_s3_bucket.this.arn
+  name        = "partitioned-stream"
+  destination = "extended_s3"
 
-  s3_prefix              = "data/customer_id=!{partitionKeyFromQuery:customer_id}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/"
-  s3_error_output_prefix = "errors/!{firehose:error-output-type}/"
+  s3_configuration = {
+    bucket_arn          = aws_s3_bucket.this.arn
+    buffering_size      = 64
+    prefix              = "data/customer_id=!{partitionKeyFromQuery:customer_id}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/"
+    error_output_prefix = "errors/!{firehose:error-output-type}/"
+  }
 
   enable_dynamic_partitioning = true
 
@@ -240,7 +260,7 @@ Report bugs on the [GitHub repository](https://github.com/sourcefuse/terraform-a
 ## Security Considerations
 
 - **IAM least privilege:** The auto-created IAM role is scoped to the specific S3 bucket, OpenSearch domain, and Lambda function ARNs provided. Avoid using wildcard ARNs.
-- **KMS encryption:** Enable `enable_sse = true` with a customer-managed KMS key for sensitive data.
+- **KMS encryption:** `enable_sse` defaults to `true`. Use a customer-managed KMS key via `kms_key_arn` for sensitive data.
 - **OpenSearch access:** Use `sign_aws_requests = true` in the OpenSearch provider instead of embedding passwords. This avoids credential exposure and works reliably with fine-grained access control.
 - **S3 backup:** Set `s3_backup_mode = "FailedDocumentsOnly"` (OpenSearch/Redshift) to retain failed records for reprocessing without storing all data twice.
 

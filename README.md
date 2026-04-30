@@ -39,11 +39,14 @@ This module provisions and manages Kinesis Data Firehose delivery streams with f
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name          = "my-stream"
-  destination   = "extended_s3"
-  s3_bucket_arn = aws_s3_bucket.my_bucket.arn
+  name        = "my-stream"
+  destination = "extended_s3"
+
+  s3_configuration = {
+    bucket_arn = aws_s3_bucket.my_bucket.arn
+  }
 
   tags = { Environment = "prod" }
 }
@@ -54,13 +57,16 @@ module "firehose" {
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name          = "my-encrypted-stream"
-  destination   = "extended_s3"
-  s3_bucket_arn = aws_s3_bucket.my_bucket.arn
-  kms_key_arn   = aws_kms_key.my_key.arn
-  enable_sse    = true
+  name        = "my-encrypted-stream"
+  destination = "extended_s3"
+
+  s3_configuration = {
+    bucket_arn = aws_s3_bucket.my_bucket.arn
+  }
+
+  kms_key_arn = aws_kms_key.my_key.arn
 
   tags = { Environment = "prod" }
 }
@@ -71,12 +77,16 @@ module "firehose" {
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name          = "my-transform-stream"
-  destination   = "extended_s3"
-  s3_bucket_arn = aws_s3_bucket.my_bucket.arn
-  lambda_arn    = aws_lambda_function.transformer.arn
+  name        = "my-transform-stream"
+  destination = "extended_s3"
+
+  s3_configuration = {
+    bucket_arn = aws_s3_bucket.my_bucket.arn
+  }
+
+  lambda_arn = aws_lambda_function.transformer.arn
 
   tags = { Environment = "prod" }
 }
@@ -87,11 +97,14 @@ module "firehose" {
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name          = "my-redshift-stream"
-  destination   = "redshift"
-  s3_bucket_arn = aws_s3_bucket.staging.arn
+  name        = "my-redshift-stream"
+  destination = "redshift"
+
+  s3_configuration = {
+    bucket_arn = aws_s3_bucket.staging.arn
+  }
 
   redshift_configuration = {
     cluster_jdbcurl = "jdbc:redshift://my-cluster.abc.us-east-1.redshift.amazonaws.com:5439/mydb"
@@ -109,13 +122,16 @@ module "firehose" {
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name                  = "my-opensearch-stream"
-  destination           = "opensearch"
-  s3_bucket_arn         = aws_s3_bucket.backup.arn
-  opensearch_domain_arn = aws_opensearch_domain.my_domain.arn
+  name        = "my-opensearch-stream"
+  destination = "opensearch"
 
+  s3_configuration = {
+    bucket_arn = aws_s3_bucket.backup.arn
+  }
+
+  opensearch_domain_arn    = aws_opensearch_domain.my_domain.arn
   opensearch_configuration = {
     index_name = "my-index"
   }
@@ -129,15 +145,17 @@ module "firehose" {
 ```hcl
 module "firehose" {
   source  = "sourcefuse/arc-kinesis-firehose/aws"
-  version  = "0.0.1"
+  version = "0.0.1"
 
-  name          = "partitioned-stream"
-  destination   = "extended_s3"
-  s3_bucket_arn = aws_s3_bucket.my_bucket.arn
+  name        = "partitioned-stream"
+  destination = "extended_s3"
 
-  s3_buffering_size      = 64
-  s3_prefix              = "data/customer_id=!{partitionKeyFromQuery:customer_id}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/"
-  s3_error_output_prefix = "errors/!{firehose:error-output-type}/"
+  s3_configuration = {
+    bucket_arn          = aws_s3_bucket.my_bucket.arn
+    buffering_size      = 64
+    prefix              = "data/customer_id=!{partitionKeyFromQuery:customer_id}/year=!{timestamp:yyyy}/month=!{timestamp:MM}/"
+    error_output_prefix = "errors/!{firehose:error-output-type}/"
+  }
 
   enable_dynamic_partitioning = true
 
@@ -211,33 +229,23 @@ No modules.
 | <a name="input_dynamic_partitioning_retry_duration"></a> [dynamic\_partitioning\_retry\_duration](#input\_dynamic\_partitioning\_retry\_duration) | Retry duration in seconds for dynamic partitioning (0–7200). | `number` | `300` | no |
 | <a name="input_enable_dynamic_partitioning"></a> [enable\_dynamic\_partitioning](#input\_enable\_dynamic\_partitioning) | Enable dynamic partitioning for extended\_s3 destination. | `bool` | `false` | no |
 | <a name="input_enable_format_conversion"></a> [enable\_format\_conversion](#input\_enable\_format\_conversion) | Enable data format conversion (Parquet/ORC) via AWS Glue. | `bool` | `false` | no |
-| <a name="input_enable_logging"></a> [enable\_logging](#input\_enable\_logging) | Enable CloudWatch logging for the delivery stream. | `bool` | `true` | no |
-| <a name="input_enable_sse"></a> [enable\_sse](#input\_enable\_sse) | Enable server-side encryption on the delivery stream. | `bool` | `false` | no |
+| <a name="input_enable_sse"></a> [enable\_sse](#input\_enable\_sse) | Enable server-side encryption on the delivery stream. | `bool` | `true` | no |
 | <a name="input_glue_database_name"></a> [glue\_database\_name](#input\_glue\_database\_name) | Glue database name for schema. Required when enable\_format\_conversion is true. | `string` | `null` | no |
 | <a name="input_glue_role_arn"></a> [glue\_role\_arn](#input\_glue\_role\_arn) | IAM role ARN for Glue access. Defaults to the Firehose role. | `string` | `null` | no |
 | <a name="input_glue_table_name"></a> [glue\_table\_name](#input\_glue\_table\_name) | Glue table name for schema. Required when enable\_format\_conversion is true. | `string` | `null` | no |
 | <a name="input_http_endpoint_configuration"></a> [http\_endpoint\_configuration](#input\_http\_endpoint\_configuration) | Configuration block for HTTP endpoint destination. | <pre>object({<br/>    url                = string<br/>    name               = optional(string)<br/>    access_key         = optional(string)<br/>    buffering_size     = optional(number, 5)<br/>    buffering_interval = optional(number, 300)<br/>    retry_duration     = optional(number, 300)<br/>    s3_backup_mode     = optional(string, "FailedDataOnly")<br/>    content_encoding   = optional(string, "NONE")<br/>    common_attributes  = optional(list(object({ name = string, value = string })), [])<br/>  })</pre> | `null` | no |
 | <a name="input_iam_role_arn"></a> [iam\_role\_arn](#input\_iam\_role\_arn) | ARN of an existing IAM role. Required when create\_iam\_role is false. | `string` | `null` | no |
-| <a name="input_kinesis_source_role_arn"></a> [kinesis\_source\_role\_arn](#input\_kinesis\_source\_role\_arn) | IAM role ARN for reading from the source Kinesis stream. | `string` | `null` | no |
-| <a name="input_kinesis_source_stream_arn"></a> [kinesis\_source\_stream\_arn](#input\_kinesis\_source\_stream\_arn) | ARN of a Kinesis Data Stream to use as the source. | `string` | `null` | no |
+| <a name="input_kinesis_data_stream"></a> [kinesis\_data\_stream](#input\_kinesis\_data\_stream) | Kinesis Data Stream source configuration. | <pre>object({<br/>    stream_arn = string<br/>    role_arn   = optional(string, null)<br/>  })</pre> | `null` | no |
 | <a name="input_kms_key_arn"></a> [kms\_key\_arn](#input\_kms\_key\_arn) | ARN of a KMS key for server-side encryption. If null, AWS-managed key is used. | `string` | `null` | no |
 | <a name="input_lambda_arn"></a> [lambda\_arn](#input\_lambda\_arn) | ARN of the Lambda function for data transformation. Enables transformation when set. | `string` | `null` | no |
-| <a name="input_log_group_name"></a> [log\_group\_name](#input\_log\_group\_name) | CloudWatch log group name. Defaults to /aws/kinesisfirehose/<stream-name>. | `string` | `null` | no |
-| <a name="input_log_stream_name"></a> [log\_stream\_name](#input\_log\_stream\_name) | CloudWatch log stream name. | `string` | `null` | no |
+| <a name="input_logging_config"></a> [logging\_config](#input\_logging\_config) | CloudWatch logging configuration for the delivery stream. | <pre>object({<br/>    enable          = optional(bool, true)<br/>    log_group_name  = optional(string, null)<br/>    log_stream_name = optional(string, null)<br/>  })</pre> | `{}` | no |
 | <a name="input_name"></a> [name](#input\_name) | Name of the Kinesis Firehose delivery stream. | `string` | n/a | yes |
-| <a name="input_name_prefix"></a> [name\_prefix](#input\_name\_prefix) | Optional prefix prepended to the stream name. | `string` | `null` | no |
 | <a name="input_opensearch_configuration"></a> [opensearch\_configuration](#input\_opensearch\_configuration) | Configuration block for OpenSearch destination. | <pre>object({<br/>    index_name            = string<br/>    index_rotation_period = optional(string, "OneDay")<br/>    buffering_interval    = optional(number, 300)<br/>    buffering_size        = optional(number, 5)<br/>    retry_duration        = optional(number, 300)<br/>    s3_backup_mode        = optional(string, "FailedDocumentsOnly")<br/>    type_name             = optional(string)<br/>    cluster_endpoint      = optional(string)<br/>  })</pre> | `null` | no |
 | <a name="input_opensearch_domain_arn"></a> [opensearch\_domain\_arn](#input\_opensearch\_domain\_arn) | ARN of the OpenSearch domain. | `string` | `null` | no |
 | <a name="input_output_format"></a> [output\_format](#input\_output\_format) | Output format for format conversion. Valid values: PARQUET, ORC. | `string` | `"PARQUET"` | no |
 | <a name="input_redshift_configuration"></a> [redshift\_configuration](#input\_redshift\_configuration) | Configuration block for Redshift destination. | <pre>object({<br/>    cluster_jdbcurl    = string<br/>    username           = optional(string)<br/>    password           = optional(string)<br/>    data_table_name    = string<br/>    copy_options       = optional(string)<br/>    data_table_columns = optional(string)<br/>    retry_duration     = optional(number, 3600)<br/>    s3_backup_mode     = optional(string, "Disabled")<br/>  })</pre> | `null` | no |
-| <a name="input_s3_backup_bucket_arn"></a> [s3\_backup\_bucket\_arn](#input\_s3\_backup\_bucket\_arn) | ARN of the S3 backup bucket. Required when s3\_backup\_mode is Enabled. | `string` | `null` | no |
-| <a name="input_s3_backup_mode"></a> [s3\_backup\_mode](#input\_s3\_backup\_mode) | S3 backup mode for extended\_s3. Valid values: Disabled, Enabled. | `string` | `"Disabled"` | no |
-| <a name="input_s3_bucket_arn"></a> [s3\_bucket\_arn](#input\_s3\_bucket\_arn) | ARN of the S3 bucket for delivery or staging. | `string` | `null` | no |
-| <a name="input_s3_buffering_interval"></a> [s3\_buffering\_interval](#input\_s3\_buffering\_interval) | S3 buffer interval in seconds (0–900). | `number` | `300` | no |
-| <a name="input_s3_buffering_size"></a> [s3\_buffering\_size](#input\_s3\_buffering\_size) | S3 buffer size in MB (1–128). | `number` | `5` | no |
-| <a name="input_s3_compression_format"></a> [s3\_compression\_format](#input\_s3\_compression\_format) | S3 compression format. Valid values: UNCOMPRESSED, GZIP, ZIP, Snappy, HADOOP\_SNAPPY. | `string` | `"UNCOMPRESSED"` | no |
-| <a name="input_s3_error_output_prefix"></a> [s3\_error\_output\_prefix](#input\_s3\_error\_output\_prefix) | S3 prefix for failed records. | `string` | `null` | no |
-| <a name="input_s3_prefix"></a> [s3\_prefix](#input\_s3\_prefix) | S3 key prefix for delivered objects. | `string` | `null` | no |
+| <a name="input_s3_backup_configuration"></a> [s3\_backup\_configuration](#input\_s3\_backup\_configuration) | S3 backup configuration for extended\_s3 destination. | <pre>object({<br/>    mode       = optional(string, "Disabled")<br/>    bucket_arn = optional(string, null)<br/>  })</pre> | `{}` | no |
+| <a name="input_s3_configuration"></a> [s3\_configuration](#input\_s3\_configuration) | S3 delivery/staging configuration. | <pre>object({<br/>    bucket_arn          = optional(string, null)<br/>    prefix              = optional(string, null)<br/>    error_output_prefix = optional(string, null)<br/>    buffering_size      = optional(number, 5)<br/>    buffering_interval  = optional(number, 300)<br/>    compression_format  = optional(string, "UNCOMPRESSED")<br/>  })</pre> | `{}` | no |
 | <a name="input_tags"></a> [tags](#input\_tags) | Map of tags to assign to all resources. | `map(string)` | `{}` | no |
 | <a name="input_vpc_config"></a> [vpc\_config](#input\_vpc\_config) | VPC configuration for OpenSearch destination. | <pre>object({<br/>    subnet_ids         = list(string)<br/>    security_group_ids = list(string)<br/>    role_arn           = optional(string)<br/>  })</pre> | `null` | no |
 
