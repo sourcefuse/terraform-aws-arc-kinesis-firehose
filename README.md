@@ -21,6 +21,10 @@
 
 Creates Kinesis Data Firehose delivery streams with S3, Redshift, OpenSearch, or HTTP endpoint destinations, with optional transformation and encryption.
 
+## Architecture
+
+![Architecture Diagram](./static/arch.png)
+
 ## What It Does
 
 - Delivery to S3, Redshift, OpenSearch, Splunk, or HTTP endpoints
