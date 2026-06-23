@@ -17,6 +17,9 @@
 
 [![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=sourcefuse_terraform-aws-arc-kinesis-firehose2&token=6ebb7675ae9d12bbcc002cec253974f085e26ded)](https://sonarcloud.io/summary/new_code?id=sourcefuse_terraform-aws-arc-kinesis-firehose2)
 
+> [!TIP]
+> 🤖 **New:** Use this module with AI assistants via the [ARC IaC MCP Server](https://github.com/sourcefuse/arc-iac-mcp) — search, scaffold, and security-scan ARC modules from natural language. [Quick setup ↓](#ai-assistant-integration-arc-iac-mcp)
+
 ## Overview
 
 Creates Kinesis Data Firehose delivery streams with S3, Redshift, OpenSearch, or HTTP endpoint destinations, with optional transformation and encryption.
